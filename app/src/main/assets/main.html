@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="core.js"></script>
+
+    <script type="text/javascript"  >
+            window.Jsbridge.invoke('头部就可以回调');
+    </script>
+
+
+</head>
+<body>
+
+<div>
+    <button type="button"  onclick="callAndroidFromAddJsObj()" class="buttonT">callAndroidFromH5有callback</button>
+</div>
+<script>
+
+
+
+
+function myFunction() {
+    console.log('myFunction callbacked by native');
+}
+
+
+function callFromNative(message,messageId ){
+
+ console.log('call from native-' + message);
+ }
+
+function callAndroidFromAddJsObj(){
+    window.Jsbridge.invoke('firstnotify',JSON.stringify({'sdf':'sdf'}), myFunction );
+    console.log(   window.Jsbridge.syncInvoke('syncall'));
+}
+
+</script>
+</body>
+</html>

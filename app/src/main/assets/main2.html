@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>离线化demo</title>
+    <script src="vue.js"></script>
+    <script type="text/javascript" src="core.js"></script>
+</head>
+<body>
+<div id="app">
+    {{ info }}
+</div>
+<script type = "text/javascript">
+new Vue({
+  el: '#app',
+  data () {
+    return {
+      info: 'init data'
+    }
+  },
+  created () {
+     window.callFromNative = (...arg)=> this.callFromNative(...arg);
+  },
+  mounted () {
+    window.Jsbridge.invoke('firstnotify',JSON.stringify({'sdf':'sdf'}), myFunction );
+  },
+
+  methods: {
+    callFromNative(message,messageId ){
+        console.log('call from native-' + message);
+        this.info = message;
+    },
+
+     myFunction(data) {
+        console.log('myFunction callbacked by native:' + data);
+        this.info = data;
+    }
+  }
+
+})
+
+ function myFunction(data) {
+        console.log('myFunction callbacked by native:' + data);
+
+    }
+
+
+
+</script>
+</body>
+</html>
