@@ -1,59 +1,8 @@
-# CMJsBridge
-CMJsBridge
+### 简介
+此工程是一个离线化web工程，大幅提升了web页面的加载速度，可以用在app内一些核心页面上
 
-使用方法：前端注入core.js，这样前端什么时候用都可以，客户端对于想用的用的webview自己open就可以，不使用的时候需要主动释放destroy
-
->前端
-	
-	<head>
-	    
-	
-	    <script type="text/javascript"  >
-	            window.Jsbridge.invoke('头部就可以回调');
-	
-	    </script>
-	
-	
-	</head>
-
-
->Android客户端
-
-1、build.gradle
-    
-    implementation 'com.snail:cmjsbridge:1.0'
-
-
-2、代码中
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        webView = new WebView(this);
-        setContentView(webView);
-       
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        mJsBridgeApi = new JsBridgeApi(webView, new IJsCallBack() {
-            @Override
-            public void onJsCall(JsMessageBean jsMessageBean) {
- 
-                mJsBridgeApi.notifyNativeTaskFinished("sf", jsMessageBean.id);
-            }
-        });
-        mJsBridgeApi.openJsBridgeChannel(webView);
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mJsBridgeApi.destroy();
-        if (webView != null) {
-            if (webView.getParent() instanceof ViewGroup) {
-                ((ViewGroup) (webView.getParent())).removeView(webView);
-            }
-            webView.destroy();
-        }
-    }
+###
+- app : 主工程
+- cmjsbridge : 封装了js -> 原生通信逻辑
+- elme  ： js 工程, 高仿饿了么点菜页面，基于普通vue工程做了改造，打成离线包放入assert下供app加载
     
