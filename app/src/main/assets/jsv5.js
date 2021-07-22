@@ -1,0 +1,1 @@
+window.document.body.innerHTML = '<script src="//static.yunjiglobal.com/qnUpload/frontend/performanceanalyse/performance-iife.js"></script>'

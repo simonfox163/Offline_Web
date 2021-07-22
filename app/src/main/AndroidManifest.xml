@@ -22,6 +22,20 @@
         </activity>
         <activity android:name=".WebViewActivity" />
         <activity android:name=".ElemeWebActivity" />
+
+<!--        <activity android:name=".ElemeWebActivity2" >-->
+<!--            <intent-filter>-->
+<!--                &lt;!&ndash;协议部分，随便设置&ndash;&gt;-->
+<!--                <data-->
+<!--                    android:host="utils"-->
+<!--                    android:scheme="baiduboxapp"/>-->
+<!--                &lt;!&ndash;下面这几行也必须得设置&ndash;&gt;-->
+<!--                <category android:name="android.intent.category.DEFAULT"/>-->
+<!--                <action android:name="android.intent.action.VIEW"/>-->
+<!--                <category android:name="android.intent.category.BROWSABLE"/>-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
     </application>
 
 </manifest>

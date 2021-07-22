@@ -1,20 +1,20 @@
 package com.snail.cmjsbridgedemo;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,12 +30,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 
 /**
  * Author: simon
  * Data: 16/7/20 下午7:15
- * Des: 用来测试jsbridge
+ * Des: 用来测试jsbridge  && js 注入
  * version:
  */
 public class WebViewActivity extends AppCompatActivity {
@@ -46,84 +48,98 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("-offline---",System.currentTimeMillis()+"");
         webView = new WebView(this);
+        Log.i("-offline---",System.currentTimeMillis()+"");
         setContentView(webView);
-        final Button button = new Button(this);
-        button.setText("Native Call h5 need callback-s");
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mJsBridgeApi.callH5FromNative(new NativeMessageBean() {
-                    {
-                        message = "callFromNative('arg1',1)";
-                        messageId = 1;
-                    }
-                }, new NativeJSCallBack() {
-                    @Override
-                    public void onResult(String result) {
-                        button.setText(result);
-                        Log.v("callH5FromNative", "h5 notify native callback");
-//                        Toast.makeText(getApplicationContext(),"callH5FromNative  h5 notify native callback" ,Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-               //startActivity(new Intent(WebViewActivity.this,WebViewActivity.class));
-            }
-        });
-
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.gravity = Gravity.LEFT | Gravity.TOP;
-        layoutParams.topMargin = 200;
-        FrameLayout viewGroup = (FrameLayout) findViewById(android.R.id.content);
-        //viewGroup.addView(button, layoutParams);
 
 
         WebSettings webSettings = webView.getSettings();
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setJavaScriptEnabled(true);
-        mJsBridgeApi = new JsBridgeApi(webView, new IJsCallBack() {
+//        mJsBridgeApi = new JsBridgeApi(webView, new IJsCallBack() {
+//            @Override
+//            public void onJsCall(JsMessageBean jsMessageBean) {
+//                Log.v("onJsCall", JsonUtil.toJsonString(jsMessageBean)) ;
+////                Toast.makeText(getApplicationContext(),"js call native "+JsonUtil.toJsonString(jsMessageBean),Toast.LENGTH_SHORT).show();
+//                //mJsBridgeApi.notifyNativeTaskFinished("sf", jsMessageBean.id);
+//
+//
+//
+//
+//                mJsBridgeApi.callH5FromNative(new NativeMessageBean() {
+//                    {
+//                        String s = "callFromNative('xxxx',1)";
+//                        message = s.replace("xxxx",getJsContent());
+//                        messageId = 1;
+//                    }
+//                }, new NativeJSCallBack() {
+//                    @Override
+//                    public void onResult(String result) {
+////                        button.setText(result);
+//                        Log.v("callH5FromNative", "h5 notify native callback");
+////                        Toast.makeText(getApplicationContext(),"callH5FromNative  h5 notify native callback" ,Toast.LENGTH_SHORT).show();
+//
+//                    }
+//                });
+//            }
+//        });
+//        mJsBridgeApi.openJsBridgeChannel(webView);
+        webView.setWebContentsDebuggingEnabled(true);
+
+
+        //webView.loadUrl("file:///android_asset/index.html#goods");
+        Log.i("-offline---",System.currentTimeMillis()+"");
+
+        webView.loadUrl("https://static.yunjiglobal.com/qnUpload/frontend/testtime.html");
+//        webView.loadUrl("https://static.yunjiglobal.com/qnUpload/frontend//performanceanalyse/performance.js");
+//        webView.loadUrl("file:///android_asset/test.html");
+//        webView.loadUrl("https://m.jd.com");
+
+        webView.setWebChromeClient(new WebChromeClient());
+
+        webView.setWebViewClient(new WebViewClient(){
             @Override
-            public void onJsCall(JsMessageBean jsMessageBean) {
-                Log.v("onJsCall", JsonUtil.toJsonString(jsMessageBean)) ;
-//                Toast.makeText(getApplicationContext(),"js call native "+JsonUtil.toJsonString(jsMessageBean),Toast.LENGTH_SHORT).show();
-                //mJsBridgeApi.notifyNativeTaskFinished("sf", jsMessageBean.id);
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                Log.i("===offline==", "onPageStarted");
+                super.onPageStarted(view, url, favicon);
+            }
+            @Override
+            public void onPageFinished(final WebView view, String url) {
+                Log.i("===offline==", "onPageFinished" );
+                super.onPageFinished(view, url);
+
+               //整个文本load
+                view.loadUrl("javascript:"+getJsContent());
 
 
+                //具体调用某函数
+                //view.loadUrl("javascript:"+"myFunction3()");
+            }
 
-
-                mJsBridgeApi.callH5FromNative(new NativeMessageBean() {
-                    {
-                        String s = "callFromNative('xxxx',1)";
-                        message = s.replace("xxxx",getJsContent());
-                        messageId = 1;
-                    }
-                }, new NativeJSCallBack() {
-                    @Override
-                    public void onResult(String result) {
-                        button.setText(result);
-                        Log.v("callH5FromNative", "h5 notify native callback");
-//                        Toast.makeText(getApplicationContext(),"callH5FromNative  h5 notify native callback" ,Toast.LENGTH_SHORT).show();
-
-                    }
-                });
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.i("should===offline==", url);
+                if (url.startsWith("http:") || url.startsWith("https:")) {
+                    return false;
+                }
+                return true;
             }
         });
-        mJsBridgeApi.openJsBridgeChannel(webView);
-        webView.setWebContentsDebuggingEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient());
-        webView.setWebViewClient(new WebViewClient());
-
-        webView.loadUrl("file:///android_asset/index.html#goods");
     }
 
 
-    // 获取离线商品列表数据
     private String getJsContent() {
+        return getJsfile("jsv6.js");
+    }
+
+
+    private String getJsfile(String file) {
         InputStream is = null;
         StringBuilder content = new StringBuilder();
         try {
-            is = getAssets().open("menu.json");
+            is = getAssets().open(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String temp;
             while ((temp = br.readLine()) != null) {
@@ -142,6 +158,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
         return content.toString();
     }
+
 
 
     @Override
@@ -165,6 +182,7 @@ public class WebViewActivity extends AppCompatActivity {
             webView.destroy();
         }
 
-
     }
+
+
 }
